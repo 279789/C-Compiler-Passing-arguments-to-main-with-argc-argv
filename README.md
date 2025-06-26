@@ -1,51 +1,160 @@
 <!---
 {
-  "depends_on": [],
+  "id": "5adc24d3-4054-453e-80dd-30a820be8ed3",
+  "depends_on": ["0b6b3ce8-418e-4900-ae42-a6d068389a12"],
   "author": "Stephan Bökelmann",
-  "first_used": "2025-03-17",
-  "keywords": ["learning", "exercises", "education", "practice"]
+  "first_used": "2025-06-26",
+  "keywords": ["C", "argc", "argv", "main"]
 }
 --->
 
-# Learning Through Exercises
+# Using `argc` and `argv` in C
+
+> In this exercise you will learn how to use `argc` and `argv` to process command-line arguments in the `main` function of a C program. Furthermore we will explore how the operating system passes values to the `main` function and how to handle those values within a C program.
 
 ## Introduction
-Learning by doing is one of the most effective methods to acquire new knowledge and skills. Rather than passively consuming information, actively engaging in problem-solving fosters deeper understanding and long-term retention. By working through structured exercises, students can grasp complex concepts in a more intuitive and applicable way. This approach is particularly beneficial in technical fields like programming, mathematics, and engineering.
+
+In C, the `main` function serves as the entry point of every program. Unlike other functions you might define, `main` has a special signature:
+
+```c
+int main(int argc, char *argv[])
+```
+
+Here, `argc` (argument count) tells you how many strings have been passed on the command line, and `argv` (argument vector) is an array of those strings. The operating system is responsible for gathering the command-line input, splitting it into separate tokens (according to whitespace or shell quoting rules), and then calling your program’s `main` function with those parameters. This means that the exact way arguments are parsed and handed off to your C program depends on the OS and shell environment—be it Windows CMD, PowerShell, Bash on Linux, or another command interpreter.
+
+Understanding how `argc` and `argv` work is crucial for writing flexible programs that can take user input directly from the command line, enabling you to write utilities like file manipulators, text processors, or simple calculators without hard-coding values.
+
+Below is a simple diagram illustrating how arguments flow from your keyboard to your C program:
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Shell
+    participant Kernel
+    participant Program
+    User->>Shell: type "./sum 3 4 5"
+    Shell->>Kernel: exec("./sum", ["./sum","3","4","5"])
+    Kernel->>Program: start with argc=4, argv=["./sum","3","4","5"]
+    Program->>Program: run main(argc, argv)
+```
+
+By the end of this exercise, you will have created a small C program that sums integers provided via the command line, practiced inspecting `argc` for proper usage, and converted the strings in `argv` into numeric values.
 
 ### Further Readings and Other Sources
-- [The Importance of Practice in Learning](https://www.sciencedirect.com/science/article/pii/S036013151300062X)
-- "The Art of Learning" by Josh Waitzkin
-- [How to Learn Effectively: 5 Key Strategies](https://www.edutopia.org/article/5-research-backed-learning-strategies)
+
+* Brian W. Kernighan and Dennis M. Ritchie, *The C Programming Language*, 2nd Edition, Prentice Hall, 1988.
+* W. K. Pratt, *Introduction to the C Programming Language*, DOI:10.1007/978-3-642-16945-4\_2
+* YouTube: "Command Line Arguments in C" – [https://www.youtube.com/watch?v=ZSPZob\_1TOk](https://www.youtube.com/watch?v=ZSPZob_1TOk)
 
 ## Tasks
-1. **Write a Summary**: Summarize the concept of "learning by doing" in 3-5 sentences.
-2. **Example Identification**: List three examples from your own experience where learning through exercises helped you understand a topic better.
-3. **Create an Exercise**: Design a simple exercise for a topic of your choice that someone else could use to practice.
-4. **Follow an Exercise**: Find an online tutorial that includes exercises and complete at least two of them.
-5. **Modify an Existing Exercise**: Take a basic problem from a textbook or online course and modify it to make it slightly more challenging.
-6. **Pair Learning**: Explain a concept to a partner and guide them through an exercise without giving direct answers.
-7. **Review Mistakes**: Look at an exercise you've previously completed incorrectly. Identify why the mistake happened and how to prevent it in the future.
-8. **Time Challenge**: Set a timer for 10 minutes and try to solve as many simple exercises as possible on a given topic.
-9. **Self-Assessment**: Create a checklist to evaluate your own performance in completing exercises effectively.
-10. **Reflect on Progress**: Write a short paragraph on how this structured approach to exercises has influenced your learning.
 
-<details>
-  <summary>Tip for Task 5</summary>
-  Try making small adjustments first, such as increasing the difficulty slightly or adding an extra constraint.
-</details>
+Follow these steps to build a program named `sum.c` that computes the sum of integer arguments passed on the command line. Each step includes the code to add and an explanation you should replicate exactly.
 
-## Questions
-1. What are the main benefits of learning through exercises compared to passive learning?
-2. How do exercises improve long-term retention?
-3. Can you think of a subject where learning through exercises might be less effective? Why?
-4. What role does feedback play in learning through exercises?
-5. How can self-designed exercises improve understanding?
-6. Why is it beneficial to review past mistakes in exercises?
-7. How does explaining a concept to someone else reinforce your own understanding?
-8. What strategies can you use to stay motivated when practicing with exercises?
-9. How can timed challenges contribute to learning efficiency?
-10. How do exercises help bridge the gap between theory and practical application?
+1. **Write the initial program skeleton.**
+
+   ```c
+   #include <stdio.h>
+
+   int main(int argc, char *argv[]) {
+       return 0;
+   }
+   ```
+
+   * The `#include <stdio.h>` directive allows use of `printf`.
+   * `argc` and `argv` are declared but unused at this point.
+
+2. **Check for the correct number of arguments.**
+
+   Add the following inside `main`, before `return 0;`:
+
+   ```c
+   if (argc < 2) {
+       printf("Usage: %s <list of integers>\n", argv[0]);
+       return 1;
+   }
+   ```
+
+   * `argc < 2` means no integers were provided (only the program name).
+   * `argv[0]` is the program’s name as invoked.
+
+3. **Initialize a sum variable.**
+
+   Just after the argument check, declare and initialize:
+
+   ```c
+   int sum = 0;
+   ```
+
+   * `sum` will accumulate the total of all integers.
+
+4. **Loop through the arguments and convert to integers.**
+
+   Below the initialization, add:
+
+   ```c
+   #include <stdlib.h>  // for atoi
+
+   for (int i = 1; i < argc; i++) {
+       int value = atoi(argv[i]);
+       sum += value;
+   }
+   ```
+
+   * `atoi` takes a string like `"42"` and returns the integer `42`.
+   * Internally, for `"42"`:
+
+     * `'4' - '0'` → 4
+     * `'2' - '0'` → 2
+     * `result = 4 * 10 + 2 = 42`
+
+5. **Print the computed sum.**
+
+   Still inside `main`, after the loop, insert:
+
+   ```c
+   printf("Sum of arguments: %d\n", sum);
+   ```
+
+   * This outputs the final total.
+
+6. **Full program listing.**
+
+   Combine all parts into `sum.c`:
+
+   ```c
+   #include <stdio.h>
+   #include <stdlib.h>
+
+   int main(int argc, char *argv[]) {
+       if (argc < 2) {
+           printf("Usage: %s <list of integers>\n", argv[0]);
+           return 1;
+       }
+
+       int sum = 0;
+       for (int i = 1; i < argc; i++) {
+           int value = atoi(argv[i]);
+           sum += value;
+       }
+
+       printf("Sum of arguments: %d\n", sum);
+       return 0;
+   }
+   ```
+
+7. **Compile and run your program.**
+
+   ```bash
+   gcc -o sum sum.c
+   ./sum 10 20 30
+   ```
+
+   Expected output:
+
+   ```text
+   Sum of arguments: 60
+   ```
 
 ## Advice
-Practice consistently and seek out diverse exercises that challenge different aspects of a topic. Combine exercises with reflection and feedback to maximize your learning efficiency. Don't hesitate to adapt exercises to fit your own needs and ensure that you're actively engaging with the material, rather than just going through the motions.
 
+As you work through this exercise, it helps to edit your code incrementally in `vim`, compiling and running after each change to catch errors early. Reflect on how `argc` and `argv` mirror parameters in ordinary functions yet differ because the operating system orchestrates their values. If you find yourself needing more practice with functions in C, revisit the previous sheet on function definitions and calls [Functions in C](./functions.md). Tackling small programs like this one builds your confidence: next time you’ll smoothly handle more complex parsing tasks, such as flags or configuration files. Good luck, and remember that each mistake you debug deepens your understanding of how C interacts with the system under the hood.
